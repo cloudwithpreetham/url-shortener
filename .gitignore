@@ -226,6 +226,3 @@ terraform/*.tfstate.backup
 __pycache__/
 *.pyc
 
-# Python
-__pycache__/
-*.pyc
