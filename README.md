@@ -96,7 +96,7 @@ curl -k -H "Host: url-shortener.local" https://<load-balancer-address>/health
 
 Since there's no real domain, the Ingress only routes requests where the `Host` matches `url-shortener.local` — a browser can't set that header manually the way `curl -H` can, so a local DNS override is needed:
 
-1. Resolve the load balancer'''s hostname to an IP:
+1. Resolve the load balancer's hostname to an IP:
    ```bash
    dig +short <load-balancer-address>
    ```
