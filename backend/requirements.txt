@@ -3,3 +3,4 @@ flask-cors==4.0.1
 redis==5.0.7
 gunicorn==22.0.0
 prometheus-flask-exporter
+pytest-mock
