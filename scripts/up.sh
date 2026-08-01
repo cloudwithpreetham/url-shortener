@@ -3,7 +3,7 @@ set -e
 
 echo "==> Provisioning infrastructure with Terraform..."
 cd terraform
-terraform init -upgrade
+terraform init -upgrade -backend-config=backend.hcl
 terraform apply
 cd ..
 

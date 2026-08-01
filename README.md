@@ -104,10 +104,12 @@ Every push to `main` triggers `.github/workflows/ci-cd.yml`:
 
 Terraform (`terraform/`) provisions:
 - A 2-AZ VPC with public/private subnets and a NAT gateway
-- An EKS cluster with IRSA enabled
+- An EKS cluster (IAM roles for cluster and node group; IRSA/OIDC not yet configured)
 - A managed node group (currently `m7i-flex.large`, single node)
 
 State is stored remotely in S3 with native locking (`terraform/versions.tf`).
+
+**Note:** The EKS API endpoint is publicly accessible (`endpoint_public_access = true`, no CIDR restriction). This is intentional to keep the GitHub Actions deploy job working without managing a dynamic IP allowlist — access is still gated by IAM authentication. For a stricter setup, restrict `public_access_cidrs` in `terraform/eks.tf` and run deployments from a fixed egress IP (e.g. a self-hosted runner or VPN).
 
 ## Observability
 

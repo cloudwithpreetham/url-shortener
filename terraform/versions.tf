@@ -9,7 +9,6 @@ terraform {
   }
 
   backend "s3" {
-    bucket       = "url-shortener-tfstate-799997637340"
     key          = "url-shortener/terraform.tfstate"
     region       = "ap-south-1"
     use_lockfile = true

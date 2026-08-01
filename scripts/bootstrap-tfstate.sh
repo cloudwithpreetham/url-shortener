@@ -18,4 +18,7 @@ aws s3api put-public-access-block \
   --bucket "$BUCKET" \
   --public-access-block-configuration BlockPublicAcls=true,IgnorePublicAcls=true,BlockPublicPolicy=true,RestrictPublicBuckets=true
 
+echo "bucket = \"$BUCKET\"" > terraform/backend.hcl
+
 echo "Done. Bucket name: $BUCKET"
+echo "Wrote terraform/backend.hcl (gitignored) for use with: terraform init -backend-config=backend.hcl"
