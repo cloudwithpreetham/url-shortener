@@ -4,6 +4,10 @@ metadata:
   name: url-shortener-ingress
   annotations:
     cert-manager.io/cluster-issuer: selfsigned-issuer
+# Path priority matters here: nginx-ingress evaluates an exact match
+# before a prefix match, so '/' (frontend) is claimed before the
+# prefix '/' fallthrough (backend) — this is what lets a wildcard
+# backend route like /<code> coexist with the frontend also serving at '/'.
 spec:
   ingressClassName: nginx
   tls:

@@ -50,7 +50,9 @@ def shorten():
     if not (long_url.startswith("http://") or long_url.startswith("https://")):
         long_url = "https://" + long_url
 
-    # Generate a unique code (retry on collision)
+    # Loop (not a single check) because two calls could generate the
+    # same 6-char code by chance; keep drawing until we find one that
+    # is not already a key in Redis.
     code = generate_code()
     while r.exists(f"url:{code}"):
         code = generate_code()

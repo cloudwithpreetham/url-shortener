@@ -17,6 +17,9 @@ spec:
       containers:
         - name: redis
           image: redis:7-alpine
+          # $(REDIS_PASSWORD) is Kubernetes container-command variable
+          # substitution — it expands the env var defined just below,
+          # NOT shell expansion (there is no shell in exec-form command).
           command: ["redis-server", "--requirepass", "$(REDIS_PASSWORD)"]
           env:
             - name: REDIS_PASSWORD
