@@ -36,6 +36,10 @@
       box-sizing: border-box;
     }
 
+    html {
+      scroll-behavior: smooth;
+    }
+
     html,
     body {
       margin: 0;
@@ -493,6 +497,11 @@
     }
 
     /* ---------- STATS BAR ---------- */
+    #stats,
+    #api {
+      scroll-margin-top: 28px;
+    }
+
     .stats-bar {
       position: relative;
       z-index: 1;
@@ -599,6 +608,80 @@
       }
     }
 
+    /* ---------- API SECTION ---------- */
+    .api-section {
+      position: relative;
+      z-index: 1;
+      background: var(--dark);
+      padding: 56px 24px 60px;
+    }
+
+    .api-inner {
+      max-width: 720px;
+      margin: 0 auto;
+    }
+
+    .api-inner h2 {
+      font-family: 'Fraunces', serif;
+      font-weight: 600;
+      font-size: 28px;
+      color: var(--white);
+      margin: 0 0 8px;
+    }
+
+    .api-inner .api-sub {
+      color: #9aa6a0;
+      font-size: 14px;
+      margin: 0 0 26px;
+    }
+
+    .api-block {
+      background: #1c2224;
+      border: 1px solid #2c3436;
+      border-radius: 14px;
+      overflow: hidden;
+      margin-bottom: 14px;
+    }
+
+    .api-block-label {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 11px;
+      letter-spacing: 0.05em;
+      color: #7d9089;
+      padding: 12px 16px;
+      border-bottom: 1px solid #2c3436;
+    }
+
+    .api-block-label .method {
+      background: var(--mint-deep);
+      color: var(--dark);
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: 5px;
+      letter-spacing: 0.03em;
+    }
+
+    .api-block pre {
+      margin: 0;
+      padding: 16px;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 12.5px;
+      line-height: 1.6;
+      color: #d7e6de;
+      overflow-x: auto;
+    }
+
+    .api-block pre .k {
+      color: #79cdb4;
+    }
+
+    .api-block pre .s {
+      color: #ffb199;
+    }
+
     @media (prefers-reduced-motion: reduce) {
 
       *,
@@ -619,10 +702,10 @@
   <nav class="nav">
     <div class="nav-inner">
       <div class="logo">Snip<span class="dot">.</span></div>
-      <div class="nav-links">
-        <a href="#top" class="active">Home</a>
-        <a href="#stats">Stats</a>
-        <a href="#top" id="apiLink">API</a>
+      <div class="nav-links" id="navLinks">
+        <a href="#top" data-nav class="active">Home</a>
+        <a href="#stats" data-nav>Stats</a>
+        <a href="#api" data-nav>API</a>
       </div>
       <div class="nav-badge"><span class="dot-live"></span> Service live</div>
     </div>
@@ -745,8 +828,55 @@
     <div class="stats-footnote">CODES EXPIRE NEVER · ONE LINK PER URL</div>
   </section>
 
+  <section class="api-section" id="api">
+    <div class="api-inner">
+      <h2>Use it from the command line</h2>
+      <p class="api-sub">Same endpoint this page calls — no API key required.</p>
+
+      <div class="api-block">
+        <div class="api-block-label"><span class="method">POST</span> /shorten</div>
+        <pre>curl -X POST <span id="apiOrigin">https://url-shortener.local</span>/shorten \
+  -H <span class="s">"Content-Type: application/json"</span> \
+  -d <span class="s">'{"url": "https://example.com/a/very/long/path"}'</span></pre>
+      </div>
+
+      <div class="api-block">
+        <div class="api-block-label">RESPONSE 200</div>
+        <pre>{
+  <span class="k">"code"</span>: <span class="s">"aZ3kq"</span>,
+  <span class="k">"short_url"</span>: <span class="s">"https://url-shortener.local/aZ3kq"</span>,
+  <span class="k">"long_url"</span>: <span class="s">"https://example.com/a/very/long/path"</span>
+}</pre>
+      </div>
+    </div>
+  </section>
+
   <script>
     const API_BASE = window.API_BASE_URL || "";
+
+    const apiOrigin = document.getElementById("apiOrigin");
+    if (apiOrigin) apiOrigin.textContent = API_BASE || window.location.origin;
+
+    const navLinks = document.querySelectorAll("#navLinks a[data-nav]");
+    const sections = ["#top", "#stats", "#api"]
+      .map((sel) => document.querySelector(sel))
+      .filter(Boolean);
+
+    if ("IntersectionObserver" in window && sections.length) {
+      const spy = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((entry) => {
+            if (!entry.isIntersecting) return;
+            const id = "#" + entry.target.id;
+            navLinks.forEach((a) => {
+              a.classList.toggle("active", a.getAttribute("href") === id);
+            });
+          });
+        },
+        { rootMargin: "-40% 0px -55% 0px" }
+      );
+      sections.forEach((el) => spy.observe(el));
+    }
 
     const input = document.getElementById("longUrl");
     const btn = document.getElementById("shortenBtn");
