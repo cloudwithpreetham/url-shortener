@@ -92,6 +92,22 @@ curl -k -H "Host: url-shortener.local" https://<load-balancer-address>/health
 
 **Note:** TLS currently uses a self-signed certificate issued by cert-manager (no real domain is configured), so `curl -k` / browser security warnings are expected. See `k8s/tls/cluster-issuer.yaml`.
 
+### Accessing the App in a Browser
+
+Since there's no real domain, the Ingress only routes requests where the `Host` matches `url-shortener.local` — a browser can't set that header manually the way `curl -H` can, so a local DNS override is needed:
+
+1. Resolve the load balancer'''s hostname to an IP:
+   ```bash
+   dig +short <load-balancer-address>
+   ```
+2. Add an entry to your hosts file (`/etc/hosts` on Mac/Linux, `C:\Windows\System32\drivers\etc\hosts` on Windows):
+   ```
+   <resolved-ip>  url-shortener.local
+   ```
+3. Open `https://url-shortener.local` in a browser. You'll get a certificate warning (expected — self-signed cert) — accept it to proceed.
+
+**Note:** AWS NLBs can return multiple/rotating IPs, so this hosts-file entry may need updating if the load balancer is recreated (e.g. after `make down` / `make up`). This is a convenience for local testing, not a substitute for a real DNS setup.
+
 ## CI/CD
 
 Every push to `main` triggers `.github/workflows/ci-cd.yml`:
@@ -99,6 +115,21 @@ Every push to `main` triggers `.github/workflows/ci-cd.yml`:
 2. Build backend and frontend Docker images
 3. Push both images to Docker Hub (tagged `backend-latest`/`frontend-latest` and by commit SHA)
 4. Apply Kubernetes manifests and roll out the new images to EKS
+
+### Required GitHub Actions Secrets
+
+The pipeline needs these set under **Settings → Secrets and variables → Actions** before it can build, push, or deploy:
+
+| Secret | Purpose |
+|---|---|
+| `DOCKERHUB_USERNAME` | Docker Hub account to push images to |
+| `DOCKERHUB_TOKEN` | Docker Hub access token (not your password) |
+| `AWS_ACCESS_KEY_ID` | IAM credentials with permission to manage EKS/EC2/VPC resources and describe the cluster |
+| `AWS_SECRET_ACCESS_KEY` | Paired with the above |
+| `REDIS_PASSWORD` | Used to create the `redis-secret` Kubernetes Secret during deploy |
+| `GRAFANA_ADMIN_PASSWORD` | Used to create the `grafana-admin` Kubernetes Secret during deploy |
+
+Without these, `lint-and-test` and `build` will still run and pass (they don't need any secrets), but `push-image` and `deploy` will fail.
 
 ## Infrastructure
 
