@@ -8,12 +8,12 @@ terraform {
     }
   }
 
-  # Optional: move state to an S3 backend once you have a bucket for it.
-  # backend "s3" {
-  #   bucket = "your-terraform-state-bucket"
-  #   key    = "url-shortener/terraform.tfstate"
-  #   region = "us-west-2"
-  # }
+  backend "s3" {
+    bucket       = "url-shortener-tfstate-799997637340"
+    key          = "url-shortener/terraform.tfstate"
+    region       = "ap-south-1"
+    use_lockfile = true
+  }
 }
 
 provider "aws" {
