@@ -4,30 +4,29 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Snip — Create Your Short Link</title>
+  <title>route/ — URL Shortener</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link
-    href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,600&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap"
+    href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Inter:wght@400;500;600;700&display=swap"
     rel="stylesheet">
   <style>
     :root {
-      --bg: #f4faf7;
-      --bg-2: #eef8f3;
-      --ink: #14201c;
-      --ink-soft: #566159;
-      --ink-faint: #93a09a;
-      --mint: #bdece0;
-      --mint-soft: #d7f3ea;
-      --mint-deep: #79cdb4;
-      --coral: #ff5b52;
-      --coral-dark: #e5453d;
-      --dark: #14181a;
-      --dark-2: #23292b;
+      --bg: #0e2c4d;
+      --bg-2: #123761;
+      --grid: rgba(255, 255, 255, 0.055);
+      --grid-strong: rgba(255, 255, 255, 0.1);
+      --cyan: #7fe0d8;
+      --amber: #ffb648;
+      --amber-dark: #e0972f;
+      --paper: #eef4f8;
+      --paper-2: #dde8ef;
+      --ink: #0e2c4d;
+      --ink-soft: #4c6178;
+      --ink-faint: #8098ac;
       --white: #ffffff;
-      --border: #dbe9e2;
-      --focus: #2f8f77;
-      --shadow-card: 0 1px 2px rgba(20, 32, 28, 0.04), 0 20px 40px -18px rgba(20, 32, 28, 0.18), 0 40px 70px -30px rgba(20, 32, 28, 0.14);
+      --danger: #ff6b5e;
+      --danger-deep: #d94f42;
       --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
       --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
     }
@@ -46,234 +45,256 @@
       padding: 0;
       min-height: 100vh;
       background: var(--bg);
-      color: var(--ink);
-      font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+      color: var(--white);
+      font-family: 'Inter', system-ui, sans-serif;
       -webkit-font-smoothing: antialiased;
     }
 
     body {
       position: relative;
-      overflow-x: hidden;
       display: flex;
       flex-direction: column;
       min-height: 100vh;
+      overflow-x: hidden;
     }
 
-    .blob {
+    .grid-bg {
       position: fixed;
-      border-radius: 50%;
-      filter: blur(60px);
-      pointer-events: none;
+      inset: 0;
       z-index: 0;
-      opacity: 0.55;
+      pointer-events: none;
+      background-image:
+        linear-gradient(var(--grid) 1px, transparent 1px),
+        linear-gradient(90deg, var(--grid) 1px, transparent 1px),
+        linear-gradient(var(--grid-strong) 1px, transparent 1px),
+        linear-gradient(90deg, var(--grid-strong) 1px, transparent 1px),
+        radial-gradient(ellipse 900px 560px at 50% 0%, var(--bg-2), transparent 70%);
+      background-size: 24px 24px, 24px 24px, 120px 120px, 120px 120px, auto;
     }
 
-    .blob-1 {
-      width: 460px;
-      height: 460px;
-      top: -160px;
-      left: -140px;
-      background: radial-gradient(circle, var(--mint) 0%, transparent 72%);
+    .vignette {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      pointer-events: none;
+      background: radial-gradient(ellipse 1000px 700px at 50% 40%, transparent 45%, var(--bg) 92%);
     }
 
-    .blob-2 {
-      width: 380px;
-      height: 380px;
-      top: 120px;
-      right: -160px;
-      background: radial-gradient(circle, #ffe3c2 0%, transparent 72%);
+    .crop {
+      position: fixed;
+      width: 18px;
+      height: 18px;
+      z-index: 1;
+      pointer-events: none;
+      opacity: 0.35;
     }
 
-    .blob-3 {
-      width: 420px;
-      height: 420px;
-      bottom: -200px;
-      left: 30%;
-      background: radial-gradient(circle, var(--mint-soft) 0%, transparent 70%);
+    .crop::before,
+    .crop::after {
+      content: "";
+      position: absolute;
+      background: var(--white);
+    }
+
+    .crop::before {
+      width: 100%;
+      height: 1px;
+      top: 50%;
+    }
+
+    .crop::after {
+      width: 1px;
+      height: 100%;
+      left: 50%;
+    }
+
+    .crop-tl {
+      top: 20px;
+      left: 20px;
+    }
+
+    .crop-tr {
+      top: 20px;
+      right: 20px;
+    }
+
+    .crop-bl {
+      bottom: 20px;
+      left: 20px;
+    }
+
+    .crop-br {
+      bottom: 20px;
+      right: 20px;
     }
 
     a {
       color: inherit;
-      text-decoration: none;
     }
 
-    /* ---------- NAV ---------- */
-    .nav {
+    .topbar {
       position: relative;
       z-index: 2;
-      padding: 22px 32px;
+      padding: 30px 44px 0;
     }
 
-    .nav-inner {
-      max-width: 1080px;
+    .topbar-inner {
+      max-width: 980px;
       margin: 0 auto;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      gap: 20px;
     }
 
-    .logo {
-      font-family: 'Fraunces', serif;
+    .wordmark {
+      font-family: 'Space Mono', monospace;
       font-weight: 700;
-      font-size: 22px;
+      font-size: 17px;
       letter-spacing: -0.01em;
-      display: flex;
-      align-items: center;
-      gap: 2px;
     }
 
-    .logo .dot {
-      color: var(--coral);
+    .wordmark .slash {
+      color: var(--amber);
     }
 
-    .nav-links {
-      display: flex;
-      gap: 30px;
-      font-size: 13px;
-      font-weight: 600;
-      letter-spacing: 0.03em;
-      text-transform: uppercase;
-      color: var(--ink-soft);
-    }
-
-    .nav-links a {
-      position: relative;
-      padding-bottom: 4px;
-      transition: color 0.18s var(--ease-out);
-    }
-
-    .nav-links a:hover {
-      color: var(--ink);
-    }
-
-    .nav-links a.active {
-      color: var(--ink);
-    }
-
-    .nav-links a.active::after {
-      content: "";
-      position: absolute;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      height: 2px;
-      background: var(--coral);
-      border-radius: 2px;
-    }
-
-    .nav-badge {
+    .status-tag {
       display: flex;
       align-items: center;
       gap: 7px;
-      font-family: 'IBM Plex Mono', monospace;
-      font-size: 11.5px;
-      color: var(--ink-soft);
-      background: var(--white);
-      border: 1px solid var(--border);
-      padding: 7px 12px;
-      border-radius: 999px;
+      font-family: 'Space Mono', monospace;
+      font-size: 11px;
+      letter-spacing: 0.04em;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      padding: 6px 11px;
+      border-radius: 5px;
+      color: #a9bcce;
     }
 
-    .nav-badge .dot-live {
-      width: 7px;
-      height: 7px;
+    .status-tag .dot {
+      width: 6px;
+      height: 6px;
       border-radius: 50%;
-      background: var(--mint-deep);
-      box-shadow: 0 0 0 3px rgba(121, 205, 180, 0.35);
+      background: var(--cyan);
+      box-shadow: 0 0 0 3px rgba(127, 224, 216, 0.25);
     }
 
-    @media (max-width: 640px) {
-      .nav-links {
-        display: none;
-      }
-    }
-
-    /* ---------- HERO ---------- */
-    .hero {
+    .stage {
       position: relative;
       z-index: 2;
       flex: 1;
       display: flex;
       flex-direction: column;
       align-items: center;
-      text-align: center;
-      padding: 40px 24px 0;
+      padding: 64px 24px 40px;
+    }
+
+    .eyebrow {
+      font-family: 'Space Mono', monospace;
+      font-size: 11.5px;
+      letter-spacing: 0.16em;
+      color: var(--cyan);
+      margin-bottom: 18px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .eyebrow::before,
+    .eyebrow::after {
+      content: "";
+      width: 20px;
+      height: 1px;
+      background: rgba(127, 224, 216, 0.4);
     }
 
     h1 {
-      font-family: 'Fraunces', serif;
-      font-weight: 600;
-      font-size: clamp(38px, 6vw, 60px);
-      line-height: 1.05;
-      letter-spacing: -0.015em;
-      margin: 0 0 16px;
-      max-width: 640px;
-    }
-
-    .highlight {
-      position: relative;
-      display: inline-block;
-      color: var(--white);
-      padding: 2px 14px 6px;
-      background: var(--coral);
-      border-radius: 8px;
-      transform: rotate(-1.2deg);
-    }
-
-    .sub {
-      font-size: 16px;
-      color: var(--ink-soft);
-      max-width: 460px;
-      margin: 0 0 34px;
-      line-height: 1.55;
-    }
-
-    /* ---------- CARD ---------- */
-    .card {
-      position: relative;
-      width: 100%;
+      font-family: 'Space Mono', monospace;
+      font-weight: 700;
+      font-size: clamp(26px, 4.4vw, 40px);
+      line-height: 1.28;
+      letter-spacing: -0.01em;
+      text-align: center;
+      margin: 0 0 40px;
       max-width: 620px;
-      background: var(--white);
-      border: 1px solid var(--border);
-      border-radius: 20px;
-      padding: 10px;
-      box-shadow: var(--shadow-card);
+    }
+
+    .panel {
+      width: 100%;
+      max-width: 560px;
+      background: var(--paper);
+      border-radius: 4px;
+      box-shadow:
+        0 1px 0 rgba(255, 255, 255, 0.6) inset,
+        0 20px 50px -20px rgba(0, 0, 0, 0.5),
+        0 2px 8px rgba(0, 0, 0, 0.25);
+      padding: 26px 26px 22px;
+      position: relative;
+    }
+
+    .panel::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      border: 1px dashed rgba(14, 44, 77, 0.14);
+      margin: 8px;
+      pointer-events: none;
+      border-radius: 2px;
+    }
+
+    .field-label {
+      font-family: 'Space Mono', monospace;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      color: var(--ink-soft);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin-bottom: 9px;
+    }
+
+    .field-label .tick {
+      color: var(--amber-dark);
     }
 
     .input-row {
       display: flex;
-      align-items: center;
       gap: 8px;
-      background: var(--mint-soft);
-      border-radius: 14px;
-      padding: 6px 6px 6px 18px;
     }
 
-    .field-icon {
-      flex-shrink: 0;
-      width: 18px;
-      height: 18px;
-      color: var(--mint-deep);
+    .field-box {
+      flex: 1;
+      min-width: 0;
+      position: relative;
+      background: var(--white);
+      border: 1.5px solid var(--paper-2);
+      border-radius: 4px;
+      transition: border-color 0.18s var(--ease-out), box-shadow 0.18s var(--ease-out);
     }
 
     input#longUrl {
-      flex: 1;
-      min-width: 0;
+      width: 100%;
       border: none;
       background: transparent;
       outline: none;
-      font-family: 'Plus Jakarta Sans', sans-serif;
-      font-size: 14.5px;
+      padding: 13px 14px;
+      font-family: 'Space Mono', monospace;
+      font-size: 13px;
       color: var(--ink);
-      padding: 12px 4px;
     }
 
     input#longUrl::placeholder {
-      color: #7d9089;
+      color: #9fb0bf;
     }
 
-    input#longUrl.invalid {
+    .field-box:focus-within {
+      border-color: var(--cyan);
+      box-shadow: 0 0 0 3px rgba(127, 224, 216, 0.28);
+    }
+
+    .field-box.invalid {
+      border-color: var(--danger);
       animation: shake 0.32s var(--ease-out);
     }
 
@@ -298,21 +319,22 @@
       display: flex;
       align-items: center;
       gap: 8px;
-      background: var(--dark);
-      color: var(--white);
+      background: var(--amber);
+      color: var(--ink);
       border: none;
-      border-radius: 10px;
-      padding: 12px 20px;
-      font-family: 'Plus Jakarta Sans', sans-serif;
-      font-size: 14px;
-      font-weight: 600;
+      border-radius: 4px;
+      padding: 0 18px;
+      font-family: 'Space Mono', monospace;
+      font-size: 12.5px;
+      font-weight: 700;
+      letter-spacing: 0.02em;
       cursor: pointer;
-      transition: background 0.18s var(--ease-out), transform 0.12s var(--ease-out);
+      transition: background 0.16s var(--ease-out), transform 0.12s var(--ease-out);
       white-space: nowrap;
     }
 
     button#shortenBtn:hover:not(:disabled) {
-      background: var(--dark-2);
+      background: var(--amber-dark);
     }
 
     button#shortenBtn:active:not(:disabled) {
@@ -320,69 +342,64 @@
     }
 
     button#shortenBtn:disabled {
+      opacity: 0.7;
       cursor: default;
-      opacity: 0.75;
     }
 
-    button#shortenBtn:focus-visible,
-    input#longUrl:focus-visible,
-    .icon-btn:focus-visible,
-    .nav-links a:focus-visible {
-      outline: 2.5px solid var(--focus);
+    button#shortenBtn:focus-visible {
+      outline: 2.5px solid var(--cyan);
       outline-offset: 2px;
     }
 
-    .btn-icon {
-      width: 15px;
-      height: 15px;
-      transition: transform 0.5s var(--ease-spring);
+    .icon-btn:focus-visible {
+      outline: 2.5px solid var(--cyan);
+      outline-offset: 2px;
     }
 
-    button#shortenBtn.loading .btn-icon {
-      animation: spin 0.7s linear infinite;
+    .btn-arrow {
+      display: inline-block;
+      transition: transform 0.4s var(--ease-spring);
     }
 
-    @keyframes spin {
+    button#shortenBtn.loading .btn-arrow {
+      animation: arrowSpin 0.8s linear infinite;
+    }
+
+    @keyframes arrowSpin {
       to {
         transform: rotate(360deg);
       }
     }
 
     .hint {
-      font-size: 12px;
+      font-family: 'Space Mono', monospace;
+      font-size: 11px;
       color: var(--ink-faint);
-      padding: 12px 14px 4px;
-      min-height: 18px;
-      transition: color 0.18s var(--ease-out);
+      padding: 10px 2px 0;
+      min-height: 16px;
     }
 
     .hint.error-text {
-      color: var(--coral-dark);
-      font-weight: 600;
+      color: var(--danger-deep);
+      font-weight: 700;
     }
 
-    /* ---------- RESULT ---------- */
-    .result-row {
+    .dim {
       display: none;
       align-items: center;
-      justify-content: space-between;
-      gap: 14px;
-      margin: 4px 4px 6px;
-      padding: 14px 16px;
-      background: var(--bg-2);
-      border: 1px solid var(--border);
-      border-radius: 12px;
+      gap: 10px;
+      margin: 16px 2px 0;
     }
 
-    .result-row.show {
+    .dim.show {
       display: flex;
-      animation: resultIn 0.4s var(--ease-out);
+      animation: fadeUp 0.4s var(--ease-out);
     }
 
-    @keyframes resultIn {
+    @keyframes fadeUp {
       from {
         opacity: 0;
-        transform: translateY(-6px);
+        transform: translateY(4px);
       }
 
       to {
@@ -391,41 +408,95 @@
       }
     }
 
-    .result-info {
-      min-width: 0;
-      text-align: left;
+    .dim-num {
+      font-family: 'Space Mono', monospace;
+      font-size: 11px;
+      color: var(--ink-soft);
+      white-space: nowrap;
     }
 
-    .result-label {
-      font-size: 10.5px;
+    .dim-num.accent {
+      color: var(--amber-dark);
       font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.06em;
-      color: var(--ink-faint);
-      margin-bottom: 3px;
     }
 
-    .result-link {
+    .dim-track {
+      flex: 1;
+      position: relative;
+      height: 2px;
+      background: var(--paper-2);
+    }
+
+    .dim-track::before,
+    .dim-track::after {
+      content: "";
+      position: absolute;
+      top: -4px;
+      width: 1px;
+      height: 10px;
+      background: var(--paper-2);
+    }
+
+    .dim-track::before {
+      left: 0;
+    }
+
+    .dim-track::after {
+      right: 0;
+    }
+
+    .dim-fill {
+      position: absolute;
+      top: 0;
+      left: 0;
+      bottom: 0;
+      width: 0%;
+      background: var(--amber);
+      transition: width 0.6s var(--ease-out);
+    }
+
+    .dim-pct {
+      display: none;
+      font-family: 'Space Mono', monospace;
+      font-size: 10.5px;
+      color: var(--ink-faint);
+      text-align: right;
+      margin: 5px 2px 0;
+    }
+
+    .dim-pct.show {
+      display: block;
+    }
+
+    .result {
+      display: none;
+      margin-top: 16px;
+      background: var(--white);
+      border-left: 3px solid var(--amber);
+      border-radius: 0 4px 4px 0;
+      padding: 14px 16px;
+    }
+
+    .result.show {
+      display: block;
+      animation: fadeUp 0.4s var(--ease-out);
+    }
+
+    .result-top {
       display: flex;
       align-items: center;
-      gap: 6px;
-      font-family: 'IBM Plex Mono', monospace;
-      font-size: 14px;
-      font-weight: 600;
-      color: var(--coral-dark);
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
+      justify-content: space-between;
+      gap: 10px;
     }
 
-    .result-dest {
-      font-size: 11.5px;
-      color: var(--ink-faint);
-      margin-top: 3px;
+    .result-url {
+      font-family: 'Space Mono', monospace;
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--ink);
       overflow: hidden;
       text-overflow: ellipsis;
       white-space: nowrap;
-      max-width: 320px;
     }
 
     .result-actions {
@@ -438,248 +509,113 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      width: 34px;
-      height: 34px;
-      border-radius: 9px;
-      border: 1px solid var(--border);
-      background: var(--white);
+      width: 32px;
+      height: 32px;
+      border-radius: 4px;
+      border: 1px solid var(--paper-2);
+      background: var(--paper);
       color: var(--ink-soft);
       cursor: pointer;
-      transition: background 0.15s var(--ease-out), border-color 0.15s var(--ease-out), color 0.15s var(--ease-out);
+      transition: background 0.15s var(--ease-out), color 0.15s var(--ease-out), border-color 0.15s var(--ease-out);
     }
 
     .icon-btn svg {
-      width: 16px;
-      height: 16px;
+      width: 15px;
+      height: 15px;
     }
 
     .icon-btn:hover {
-      background: var(--mint-soft);
-      border-color: var(--mint-deep);
+      background: #e4edf3;
       color: var(--ink);
     }
 
     .icon-btn.copied {
-      background: var(--mint-deep);
-      border-color: var(--mint-deep);
-      color: var(--white);
+      background: var(--cyan);
+      border-color: var(--cyan);
+      color: var(--ink);
     }
 
-    /* ---------- ERROR ---------- */
-    .error-row {
+    .result-dest {
+      margin-top: 6px;
+      font-family: 'Inter', sans-serif;
+      font-size: 11.5px;
+      color: var(--ink-faint);
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .result-dest .arrow {
+      color: var(--ink-faint);
+      margin-right: 5px;
+    }
+
+    .error {
       display: none;
-      align-items: center;
-      gap: 10px;
-      margin: 4px 4px 6px;
-      padding: 13px 16px;
-      background: #fff1f0;
-      border: 1px solid #ffd2cf;
-      border-radius: 12px;
+      margin-top: 16px;
+      background: #fff2f0;
+      border-left: 3px solid var(--danger);
+      border-radius: 0 4px 4px 0;
+      padding: 12px 16px;
     }
 
-    .error-row.show {
+    .error.show {
       display: flex;
-      animation: resultIn 0.35s var(--ease-out);
+      align-items: center;
+      gap: 9px;
+      animation: fadeUp 0.35s var(--ease-out);
     }
 
-    .error-row svg {
-      width: 17px;
-      height: 17px;
-      color: var(--coral-dark);
+    .error svg {
+      width: 15px;
+      height: 15px;
+      color: var(--danger-deep);
       flex-shrink: 0;
     }
 
-    .error-row span {
-      font-size: 13px;
-      color: var(--coral-dark);
-      font-weight: 500;
-      text-align: left;
-    }
-
-    /* ---------- STATS BAR ---------- */
-    #stats,
-    #api {
-      scroll-margin-top: 28px;
-    }
-
-    .stats-bar {
-      position: relative;
-      z-index: 1;
-      margin-top: 64px;
-      background: linear-gradient(180deg, var(--mint) 0%, var(--mint-deep) 100%);
-      border-radius: 36px 36px 0 0;
-      padding: 46px 24px 40px;
-    }
-
-    .stats-inner {
-      max-width: 900px;
-      margin: -70px auto 0;
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 16px;
-    }
-
-    .stat-card {
-      background: var(--white);
-      border-radius: 16px;
-      padding: 16px 18px;
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      box-shadow: 0 14px 30px -14px rgba(20, 32, 28, 0.22);
-    }
-
-    .stat-icon {
-      flex-shrink: 0;
-      width: 38px;
-      height: 38px;
-      border-radius: 50%;
-      border: 2px solid var(--coral);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: var(--coral);
-    }
-
-    .stat-icon svg {
-      width: 17px;
-      height: 17px;
-    }
-
-    .stat-num {
-      font-family: 'Fraunces', serif;
+    .error span {
+      font-family: 'Space Mono', monospace;
+      font-size: 11.5px;
+      color: var(--danger-deep);
       font-weight: 700;
-      font-size: 20px;
-      line-height: 1.1;
     }
 
-    .stat-label {
-      font-size: 11px;
-      color: var(--ink-soft);
-      font-weight: 600;
-      margin-top: 1px;
-    }
-
-    .stats-footnote {
+    .foot {
+      position: relative;
+      z-index: 2;
       text-align: center;
-      font-family: 'IBM Plex Mono', monospace;
-      font-size: 10.5px;
-      letter-spacing: 0.05em;
-      color: rgba(20, 32, 28, 0.55);
-      margin-top: 22px;
-    }
-
-    @media (max-width: 720px) {
-      .stats-inner {
-        grid-template-columns: repeat(2, 1fr);
-        margin-top: -56px;
-      }
-
-      .stat-num {
-        font-size: 18px;
-      }
+      font-family: 'Space Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 0.08em;
+      color: var(--ink-faint);
+      padding: 0 24px 30px;
     }
 
     @media (max-width: 560px) {
-      .nav {
-        padding: 18px 18px;
+      .topbar {
+        padding: 22px 20px 0;
       }
 
-      .hero {
-        padding: 28px 16px 0;
+      .stage {
+        padding: 44px 16px 30px;
+      }
+
+      .panel {
+        padding: 22px 18px 18px;
       }
 
       .input-row {
-        flex-wrap: wrap;
+        flex-direction: column;
       }
 
       button#shortenBtn {
-        width: 100%;
+        padding: 13px 18px;
         justify-content: center;
       }
 
-      .result-row {
-        flex-direction: column;
-        align-items: flex-start;
+      .result-top {
+        flex-wrap: wrap;
       }
-
-      .result-actions {
-        align-self: flex-end;
-      }
-    }
-
-    /* ---------- API SECTION ---------- */
-    .api-section {
-      position: relative;
-      z-index: 1;
-      background: var(--dark);
-      padding: 56px 24px 60px;
-    }
-
-    .api-inner {
-      max-width: 720px;
-      margin: 0 auto;
-    }
-
-    .api-inner h2 {
-      font-family: 'Fraunces', serif;
-      font-weight: 600;
-      font-size: 28px;
-      color: var(--white);
-      margin: 0 0 8px;
-    }
-
-    .api-inner .api-sub {
-      color: #9aa6a0;
-      font-size: 14px;
-      margin: 0 0 26px;
-    }
-
-    .api-block {
-      background: #1c2224;
-      border: 1px solid #2c3436;
-      border-radius: 14px;
-      overflow: hidden;
-      margin-bottom: 14px;
-    }
-
-    .api-block-label {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      font-family: 'IBM Plex Mono', monospace;
-      font-size: 11px;
-      letter-spacing: 0.05em;
-      color: #7d9089;
-      padding: 12px 16px;
-      border-bottom: 1px solid #2c3436;
-    }
-
-    .api-block-label .method {
-      background: var(--mint-deep);
-      color: var(--dark);
-      font-weight: 700;
-      padding: 2px 8px;
-      border-radius: 5px;
-      letter-spacing: 0.03em;
-    }
-
-    .api-block pre {
-      margin: 0;
-      padding: 16px;
-      font-family: 'IBM Plex Mono', monospace;
-      font-size: 12.5px;
-      line-height: 1.6;
-      color: #d7e6de;
-      overflow-x: auto;
-    }
-
-    .api-block pre .k {
-      color: #79cdb4;
-    }
-
-    .api-block pre .s {
-      color: #ffb199;
     }
 
     @media (prefers-reduced-motion: reduce) {
@@ -695,196 +631,103 @@
 </head>
 
 <body>
-  <div class="blob blob-1"></div>
-  <div class="blob blob-2"></div>
-  <div class="blob blob-3"></div>
+  <div class="grid-bg"></div>
+  <div class="vignette"></div>
+  <div class="crop crop-tl"></div>
+  <div class="crop crop-tr"></div>
+  <div class="crop crop-bl"></div>
+  <div class="crop crop-br"></div>
 
-  <nav class="nav">
-    <div class="nav-inner">
-      <div class="logo">Snip<span class="dot">.</span></div>
-      <div class="nav-links" id="navLinks">
-        <a href="#top" data-nav class="active">Home</a>
-        <a href="#stats" data-nav>Stats</a>
-        <a href="#api" data-nav>API</a>
-      </div>
-      <div class="nav-badge"><span class="dot-live"></span> Service live</div>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <div class="wordmark">route<span class="slash">/</span></div>
+      <div class="status-tag"><span class="dot"></span>self-hosted · live</div>
     </div>
-  </nav>
+  </header>
 
-  <main class="hero" id="top">
-    <h1>Create Your <span class="highlight">Short</span> Link</h1>
-    <p class="sub">Paste any URL below and get a clean, shareable short link back instantly.</p>
+  <main class="stage">
+    <div class="eyebrow">URL SHORTENER</div>
+    <h1>Paste a long URL.<br>Get a short route back.</h1>
 
-    <div class="card">
+    <div class="panel">
+      <div class="field-label"><span class="tick">›</span> LONG URL</div>
       <div class="input-row">
-        <svg class="field-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-          stroke-linecap="round" stroke-linejoin="round">
-          <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" />
-          <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" />
-        </svg>
-        <input type="text" id="longUrl" placeholder="Paste long url to shorten it" autocomplete="off" autofocus />
+        <div class="field-box" id="fieldBox">
+          <input type="text" id="longUrl" placeholder="https://example.com/a/very/long/path?with=params"
+            autocomplete="off" autofocus />
+        </div>
         <button id="shortenBtn" type="button">
-          <svg class="btn-icon" id="btnIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
-            stroke-linecap="round" stroke-linejoin="round">
-            <path d="M21 2v6h-6" />
-            <path d="M3 12a9 9 0 0 1 15-6.7L21 8" />
-            <path d="M3 22v-6h6" />
-            <path d="M21 12a9 9 0 0 1-15 6.7L3 16" />
-          </svg>
-          <span id="btnLabel">Shorten</span>
+          <span class="btn-arrow" id="btnArrow">→</span>
+          <span id="btnLabel">Route it</span>
         </button>
       </div>
+      <div class="hint" id="hint">Press Enter, or click Route it.</div>
 
-      <div class="hint" id="hint">Press Enter or click Shorten to get your link.</div>
+      <div class="dim" id="dimRow">
+        <span class="dim-num" id="dimLong">— chars</span>
+        <span class="dim-track"><span class="dim-fill" id="dimFill"></span></span>
+        <span class="dim-num accent" id="dimShort">— chars</span>
+      </div>
+      <div class="dim-pct" id="dimPct"></div>
 
-      <div class="result-row" id="resultRow">
-        <div class="result-info">
-          <div class="result-label">Your short link</div>
-          <div class="result-link"><span id="codeText"></span></div>
-          <div class="result-dest" id="destText"></div>
+      <div class="result" id="result">
+        <div class="result-top">
+          <div class="result-url" id="codeText"></div>
+          <div class="result-actions">
+            <button class="icon-btn" id="copyBtn" type="button" title="Copy short link" aria-label="Copy short link">
+              <svg id="copyIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round">
+                <rect x="9" y="9" width="13" height="13" rx="2" />
+                <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
+              </svg>
+              <svg id="checkIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round" style="display:none">
+                <polyline points="20 6 9 17 4 12" />
+              </svg>
+            </button>
+            <a class="icon-btn" id="openBtn" href="#" target="_blank" rel="noopener" title="Open short link"
+              aria-label="Open short link">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                stroke-linejoin="round">
+                <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
+                <polyline points="15 3 21 3 21 9" />
+                <line x1="10" y1="14" x2="21" y2="3" />
+              </svg>
+            </a>
+          </div>
         </div>
-        <div class="result-actions">
-          <button class="icon-btn" id="copyBtn" type="button" title="Copy short link" aria-label="Copy short link">
-            <svg id="copyIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-              stroke-linecap="round" stroke-linejoin="round">
-              <rect x="9" y="9" width="13" height="13" rx="2" />
-              <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
-            </svg>
-            <svg id="checkIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-              stroke-linecap="round" stroke-linejoin="round" style="display:none">
-              <polyline points="20 6 9 17 4 12" />
-            </svg>
-          </button>
-          <a class="icon-btn" id="openBtn" href="#" target="_blank" rel="noopener" title="Open short link"
-            aria-label="Open short link">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-              stroke-linejoin="round">
-              <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
-              <polyline points="15 3 21 3 21 9" />
-              <line x1="10" y1="14" x2="21" y2="3" />
-            </svg>
-          </a>
-        </div>
+        <div class="result-dest"><span class="arrow">↳</span><span id="destText"></span></div>
       </div>
 
-      <div class="error-row" id="errorRow">
+      <div class="error" id="error">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
           stroke-linejoin="round">
           <circle cx="12" cy="12" r="10" />
           <line x1="12" y1="8" x2="12" y2="12" />
           <line x1="12" y1="16" x2="12.01" y2="16" />
         </svg>
-        <span id="errorText">Something went wrong.</span>
+        <span id="errorText">Route rejected.</span>
       </div>
     </div>
   </main>
 
-  <section class="stats-bar" id="stats">
-    <div class="stats-inner">
-      <div class="stat-card">
-        <div class="stat-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-            stroke-linecap="round" stroke-linejoin="round">
-            <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" />
-            <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" />
-          </svg></div>
-        <div>
-          <div class="stat-num" id="statLinks">—</div>
-          <div class="stat-label">Links this session</div>
-        </div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-            stroke-linecap="round" stroke-linejoin="round">
-            <path d="M13 2 3 14h7l-1 8 11-14h-7z" />
-          </svg></div>
-        <div>
-          <div class="stat-num">Instant</div>
-          <div class="stat-label">Redirect speed</div>
-        </div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-            stroke-linecap="round" stroke-linejoin="round">
-            <rect x="3" y="11" width="18" height="10" rx="2" />
-            <path d="M7 11V7a5 5 0 0 1 10 0v4" />
-          </svg></div>
-        <div>
-          <div class="stat-num">Private</div>
-          <div class="stat-label">No account needed</div>
-        </div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-            stroke-linecap="round" stroke-linejoin="round">
-            <circle cx="12" cy="12" r="10" />
-            <path d="M12 6v6l4 2" />
-          </svg></div>
-        <div>
-          <div class="stat-num">Never</div>
-          <div class="stat-label">Links expire</div>
-        </div>
-      </div>
-    </div>
-    <div class="stats-footnote">CODES EXPIRE NEVER · ONE LINK PER URL</div>
-  </section>
-
-  <section class="api-section" id="api">
-    <div class="api-inner">
-      <h2>Use it from the command line</h2>
-      <p class="api-sub">Same endpoint this page calls — no API key required.</p>
-
-      <div class="api-block">
-        <div class="api-block-label"><span class="method">POST</span> /shorten</div>
-        <pre>curl -X POST <span id="apiOrigin">https://url-shortener.local</span>/shorten \
-  -H <span class="s">"Content-Type: application/json"</span> \
-  -d <span class="s">'{"url": "https://example.com/a/very/long/path"}'</span></pre>
-      </div>
-
-      <div class="api-block">
-        <div class="api-block-label">RESPONSE 200</div>
-        <pre>{
-  <span class="k">"code"</span>: <span class="s">"aZ3kq"</span>,
-  <span class="k">"short_url"</span>: <span class="s">"https://url-shortener.local/aZ3kq"</span>,
-  <span class="k">"long_url"</span>: <span class="s">"https://example.com/a/very/long/path"</span>
-}</pre>
-      </div>
-    </div>
-  </section>
+  <footer class="foot">NO ACCOUNT REQUIRED · LINKS DON'T EXPIRE</footer>
 
   <script>
     const API_BASE = window.API_BASE_URL || "";
 
-    const apiOrigin = document.getElementById("apiOrigin");
-    if (apiOrigin) apiOrigin.textContent = API_BASE || window.location.origin;
-
-    const navLinks = document.querySelectorAll("#navLinks a[data-nav]");
-    const sections = ["#top", "#stats", "#api"]
-      .map((sel) => document.querySelector(sel))
-      .filter(Boolean);
-
-    if ("IntersectionObserver" in window && sections.length) {
-      const spy = new IntersectionObserver(
-        (entries) => {
-          entries.forEach((entry) => {
-            if (!entry.isIntersecting) return;
-            const id = "#" + entry.target.id;
-            navLinks.forEach((a) => {
-              a.classList.toggle("active", a.getAttribute("href") === id);
-            });
-          });
-        },
-        { rootMargin: "-40% 0px -55% 0px" }
-      );
-      sections.forEach((el) => spy.observe(el));
-    }
-
     const input = document.getElementById("longUrl");
+    const fieldBox = document.getElementById("fieldBox");
     const btn = document.getElementById("shortenBtn");
-    const btnIcon = document.getElementById("btnIcon");
     const btnLabel = document.getElementById("btnLabel");
     const hint = document.getElementById("hint");
-    const resultRow = document.getElementById("resultRow");
-    const errorRow = document.getElementById("errorRow");
+    const dimRow = document.getElementById("dimRow");
+    const dimLong = document.getElementById("dimLong");
+    const dimShort = document.getElementById("dimShort");
+    const dimFill = document.getElementById("dimFill");
+    const dimPct = document.getElementById("dimPct");
+    const result = document.getElementById("result");
+    const errorBox = document.getElementById("error");
     const errorText = document.getElementById("errorText");
     const codeText = document.getElementById("codeText");
     const destText = document.getElementById("destText");
@@ -892,37 +735,51 @@
     const copyIcon = document.getElementById("copyIcon");
     const checkIcon = document.getElementById("checkIcon");
     const openBtn = document.getElementById("openBtn");
-    const statLinks = document.getElementById("statLinks");
 
     let currentShortUrl = "";
-    let sessionCount = 0;
 
     function resetHint() {
-      hint.textContent = "Press Enter or click Shorten to get your link.";
+      hint.textContent = "Press Enter, or click Route it.";
       hint.classList.remove("error-text");
-      input.classList.remove("invalid");
+      fieldBox.classList.remove("invalid");
     }
 
     function showError(message) {
-      resultRow.classList.remove("show");
-      errorRow.classList.remove("show");
-      void errorRow.offsetWidth;
-      errorRow.classList.add("show");
+      result.classList.remove("show");
+      dimRow.classList.remove("show");
+      dimPct.classList.remove("show");
+      errorBox.classList.remove("show");
+      void errorBox.offsetWidth;
+      errorBox.classList.add("show");
       errorText.textContent = message;
     }
 
     function showResult(data) {
-      errorRow.classList.remove("show");
+      errorBox.classList.remove("show");
+
       codeText.textContent = data.short_url;
       destText.textContent = data.long_url;
       currentShortUrl = data.short_url;
       openBtn.href = data.short_url;
-      resultRow.classList.remove("show");
-      void resultRow.offsetWidth;
-      resultRow.classList.add("show");
 
-      sessionCount += 1;
-      statLinks.textContent = sessionCount;
+      result.classList.remove("show");
+      void result.offsetWidth;
+      result.classList.add("show");
+
+      const longLen = data.long_url.length;
+      const shortLen = data.short_url.length;
+      const pct = longLen > 0 ? Math.round((1 - shortLen / longLen) * 100) : 0;
+
+      dimLong.textContent = `${longLen} chars`;
+      dimShort.textContent = `${shortLen} chars`;
+      dimFill.style.width = "0%";
+      dimRow.classList.add("show");
+      requestAnimationFrame(() => {
+        const ratio = longLen > 0 ? Math.min(100, (shortLen / longLen) * 100) : 0;
+        dimFill.style.width = ratio + "%";
+      });
+      dimPct.textContent = pct > 0 ? `${pct}% shorter` : "same length";
+      dimPct.classList.add("show");
     }
 
     async function shortenUrl() {
@@ -930,16 +787,16 @@
       resetHint();
 
       if (!url) {
-        hint.textContent = "Paste a URL first — there's nothing to shorten yet.";
+        hint.textContent = "Paste a URL first — nothing to route yet.";
         hint.classList.add("error-text");
-        input.classList.add("invalid");
+        fieldBox.classList.add("invalid");
         input.focus();
         return;
       }
 
       btn.disabled = true;
       btn.classList.add("loading");
-      btnLabel.textContent = "Shortening…";
+      btnLabel.textContent = "Routing…";
 
       try {
         const res = await fetch(`${API_BASE}/shorten`, {
@@ -950,17 +807,17 @@
         const data = await res.json();
 
         if (!res.ok) {
-          showError(data.error || "That URL couldn't be shortened.");
+          showError(data.error || "That URL was rejected.");
         } else {
           showResult(data);
-          hint.textContent = "Link created. Copy it or open it straight away.";
+          hint.textContent = "Route created. Copy it or open it now.";
         }
       } catch (err) {
-        showError("Could not reach the server. Check your connection and try again.");
+        showError("Could not reach the server.");
       } finally {
         btn.disabled = false;
         btn.classList.remove("loading");
-        btnLabel.textContent = "Shorten";
+        btnLabel.textContent = "Route it";
       }
     }
 
@@ -971,7 +828,7 @@
     });
 
     input.addEventListener("input", () => {
-      if (input.classList.contains("invalid")) resetHint();
+      if (fieldBox.classList.contains("invalid")) resetHint();
     });
 
     copyBtn.addEventListener("click", async () => {
