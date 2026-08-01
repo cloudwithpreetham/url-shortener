@@ -105,6 +105,8 @@ jobs:
 
       - name: Deploy to cluster
         run: |
+          kubectl apply -f k8s/redis/
+          kubectl apply -f k8s/app/
           kubectl set image deployment/url-shortener \
             url-shortener=${{ secrets.DOCKERHUB_USERNAME }}/url-shortener:${{ github.sha }} \
             --namespace=default
