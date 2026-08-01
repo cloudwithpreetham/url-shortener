@@ -221,3 +221,11 @@ __marimo__/
 terraform/.terraform/
 terraform/*.tfstate
 terraform/*.tfstate.backup
+
+# Python
+__pycache__/
+*.pyc
+
+# Python
+__pycache__/
+*.pyc
