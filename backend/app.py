@@ -5,9 +5,12 @@ import random
 from flask import Flask, request, jsonify, redirect
 from flask_cors import CORS
 import redis
+from prometheus_flask_exporter import PrometheusMetrics
 
 app = Flask(__name__)
 CORS(app)
+
+metrics = PrometheusMetrics(app)
 
 # Redis connection (configurable via env vars for Docker/K8s)
 REDIS_HOST = os.getenv("REDIS_HOST", "localhost")
