@@ -2,8 +2,14 @@ apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: url-shortener-ingress
+  annotations:
+    cert-manager.io/cluster-issuer: selfsigned-issuer
 spec:
   ingressClassName: nginx
+  tls:
+    - hosts:
+        - url-shortener.local
+      secretName: url-shortener-tls-secret
   rules:
     - host: url-shortener.local
       http:
