@@ -131,6 +131,8 @@ The pipeline needs these set under **Settings → Secrets and variables → Acti
 
 Without these, `lint-and-test` and `build` will still run and pass (they don't need any secrets), but `push-image` and `deploy` will fail.
 
+**Note:** The `deploy` job only runs `aws eks update-kubeconfig` and `kubectl apply` — it does not run Terraform. It assumes the EKS cluster already exists via a prior `make up`. If the infrastructure has been torn down (`make down`), pushing to `main` will fail at the "Update kubeconfig" step until `make up` is run again.
+
 ## Infrastructure
 
 Terraform (`terraform/`) provisions:

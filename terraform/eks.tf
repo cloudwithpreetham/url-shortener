@@ -65,7 +65,8 @@ resource "aws_iam_role_policy_attachment" "eks_node_ecr" {
   policy_arn = "arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly"
 }
 
-# --- Managed node group: minimal/cheap, t3.small, 1-2 nodes ---
+# --- Managed node group: minimal/cheap instance type by default (see
+# node_instance_types in variables.tf), 1-2 nodes for cost control ---
 resource "aws_eks_node_group" "main" {
   cluster_name    = aws_eks_cluster.main.name
   node_group_name = "${var.app_name}-nodes"
