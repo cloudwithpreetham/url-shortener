@@ -1,6 +1,16 @@
 # URL Shortener
 
+[![CI/CD Pipeline](https://github.com/cloudwithpreetham/url-shortener/actions/workflows/ci-cd.yml/badge.svg)](https://github.com/cloudwithpreetham/url-shortener/actions/workflows/ci-cd.yml)
+
 A full-stack URL shortener built to demonstrate a complete, production-style DevOps workflow: containerization → CI/CD → Kubernetes deployment → observability → TLS.
+
+## Demo
+
+Running end-to-end against the live EKS deployment — TLS-terminated Ingress, Flask backend, Redis storage. The dimension line shows the real character-count reduction computed from the actual API response (72 → 33 chars):
+
+![Shortening a URL against the live deployment](docs/demo/demo-shorten.png)
+
+Full spin-up-to-teardown walkthrough (`make up` provisioning the cluster → app running with live Prometheus/Grafana metrics → `make down` releasing all resources): **[add recording link here]**
 
 ## Diagram
 
