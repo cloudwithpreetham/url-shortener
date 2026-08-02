@@ -46,7 +46,7 @@ docker-compose up --build
 
 - Frontend: http://localhost:8080
 - Backend API: http://localhost:5000
-- Redis: localhost:6379
+- Redis: http://localhost:6379
 
 ## Running Without Docker (backend only)
 
